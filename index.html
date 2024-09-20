@@ -1,5 +1,17 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js PLY Loader</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
 <canvas></canvas>
+
 <script type="importmap">
 {
   "imports": {
@@ -9,41 +21,96 @@
 </script>
 <script type="module">
 
+//  import { three } from 'https://unpkg.com/three@0.157.0/build/three.module.js';
+//  import { WebGLRenderer, PerspectiveCamera, Scene, MeshBasicMaterial, Mesh } from 'https://unpkg.com/three@0.157.0/build/three.module.js';
+//  import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js?module';
+//  import { PLYLoader } from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/PLYLoader.js?module';
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js';
     import { PLYLoader } from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/PLYLoader.js';
-    import { WebGLRenderer, PerspectiveCamera, Scene, MeshBasicMaterial, Mesh } from 'three';
+
+    let canvas = document.querySelector('canvas');
+    let renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    let scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xcccccc);
+
+    let camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 2;
+
+    let controls = new OrbitControls(camera, canvas);
+    controls.enableDamping = true;
+
+    // Add lighting
+    let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
 
 
-let canvas = document.querySelector('canvas');
+    // Create a PLYLoader instance
+    let loader = new PLYLoader();
 
-let renderer = new WebGLRenderer({
-	canvas: canvas,
-	antialias: false
+// Load your PLY file (replace 'your-file-url.ply' with your actual file URL)
+loader.load('./Angel Guimera cropped.ply', function(geometry) {
+	// Create a material
+//	let material = new THREE.MeshBasicMaterial({ vertexColors: true });
+
+            // Compute vertex normals
+            geometry.computeVertexNormals();
+
+            // Create materials
+            let meshMaterial = new THREE.MeshPhongMaterial({ 
+                vertexColors: true, 
+                side: THREE.DoubleSide,  // Render both sides of faces
+                flatShading: false  // Use smooth shading
+            });
+            let pointsMaterial = new THREE.PointsMaterial({ vertexColors: true, size: 0.005 });
+
+            // Create mesh and points
+            let mesh = new THREE.Mesh(geometry, meshMaterial);
+            let points = new THREE.Points(geometry, pointsMaterial);
+
+            // Rotate models to correct orientation
+            mesh.rotation.x = Math.PI;  // Rotate 180 degrees around X-axis
+            points.rotation.x = Math.PI;
+
+            // Add models to scene
+            scene.add(mesh);
+            scene.add(points);
+
+            // Position points slightly in front of mesh for visibility
+            points.position.z = 0.001;
+
+            // Center the geometry
+            geometry.center();
+            
+            // Reset controls to focus on the model
+            controls.reset();
 });
 
-renderer.setSize(window.innerWidth, window.innerHeight, false);
+    // Handle window resize
+    window.addEventListener('resize', onWindowResize, false);
 
-let scene = new Scene();
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
 
-let camera = new PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 4;
+    // Render loop
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+    }
 
-let controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
+    animate();
 
-let loader = new PLYLoader();
-
-loader.load('Angel Guimera cropped.ply', function(geometry) {
-	let material = new MeshBasicMaterial({ vertexColors: true });
-
-	let mesh = new Mesh(geometry, material);
-
-	scene.add(mesh);
-});
-
-renderer.setAnimationLoop(() => {
-	controls.update();
-	renderer.render(scene, camera);
-});
+// Render loop
+// renderer.setAnimationLoop(() => {
+// 	controls.update();
+// 	renderer.render(scene, camera);
+// });
 </script>
+</body>
+</html>
