@@ -38,16 +38,26 @@
     let controls = new OrbitControls(camera, canvas);
     controls.enableDamping = true;
 
-    // Add lighting
-    let ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-
     // Create a PLYLoader instance
     let loader = new PLYLoader();
 
 // Load your PLY file (replace 'your-file-url.ply' with your actual file URL)
 loader.load('./Angel Guimera cropped.ply', function(geometry) {
+
+            // Custom interpretation of f_dc_0, f_dc_1, f_dc_2 as colors
+            let colors = [];
+            const colorAttribute = geometry.attributes['f_dc_0']; // Replace with correct attribute name
+            if (colorAttribute) {
+                for (let i = 0; i < colorAttribute.count; i++) {
+                    // Assuming f_dc_0, f_dc_1, f_dc_2 are RGB values
+                    colors.push(new THREE.Color(
+                        geometry.attributes['f_dc_0'].getX(i),
+                        geometry.attributes['f_dc_1'].getY(i),
+                        geometry.attributes['f_dc_2'].getZ(i)
+                    ));
+                }
+                geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            }
 
             // Create materials
             let pointsMaterial = new THREE.PointsMaterial({ vertexColors: true, size: 0.01 });
@@ -63,7 +73,7 @@ loader.load('./Angel Guimera cropped.ply', function(geometry) {
 
             // Center the geometry
             geometry.center();
-            
+
             // Reset controls to focus on the model
             controls.reset();
 });
