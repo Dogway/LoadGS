@@ -49,20 +49,17 @@
 // Load your PLY file (replace 'your-file-url.ply' with your actual file URL)
 loader.load('./Angel Guimera cropped.ply', function(geometry) {
 
-            // Compute vertex normals
-            geometry.computeVertexNormals();
-
             // Create materials
-            let meshMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
+            let pointsMaterial = new THREE.PointsMaterial({ vertexColors: true, size: 0.01 });
 
             // Create mesh and points
-            let mesh = new THREE.Mesh(geometry, meshMaterial);
+            let points = new THREE.Points(geometry, pointsMaterial);
 
             // Rotate models to correct orientation
-            mesh.rotation.z = Math.PI;
+            points.rotation.z = Math.PI;
 
             // Add models to scene
-            scene.add(mesh);
+            scene.add(points);
 
             // Center the geometry
             geometry.center();
