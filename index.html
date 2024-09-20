@@ -21,10 +21,6 @@
 </script>
 <script type="module">
 
-//  import { three } from 'https://unpkg.com/three@0.157.0/build/three.module.js';
-//  import { WebGLRenderer, PerspectiveCamera, Scene, MeshBasicMaterial, Mesh } from 'https://unpkg.com/three@0.157.0/build/three.module.js';
-//  import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js?module';
-//  import { PLYLoader } from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/PLYLoader.js?module';
     import * as THREE from 'three';
     import { OrbitControls } from 'https://unpkg.com/three@0.157.0/examples/jsm/controls/OrbitControls.js';
     import { PLYLoader } from 'https://unpkg.com/three@0.157.0/examples/jsm/loaders/PLYLoader.js';
@@ -52,34 +48,21 @@
 
 // Load your PLY file (replace 'your-file-url.ply' with your actual file URL)
 loader.load('./Angel Guimera cropped.ply', function(geometry) {
-	// Create a material
-//	let material = new THREE.MeshBasicMaterial({ vertexColors: true });
 
             // Compute vertex normals
             geometry.computeVertexNormals();
 
             // Create materials
-            let meshMaterial = new THREE.MeshPhongMaterial({ 
-                vertexColors: true, 
-                side: THREE.DoubleSide,  // Render both sides of faces
-                flatShading: false  // Use smooth shading
-            });
-            let pointsMaterial = new THREE.PointsMaterial({ vertexColors: true, size: 0.005 });
+            let meshMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
 
             // Create mesh and points
             let mesh = new THREE.Mesh(geometry, meshMaterial);
-            let points = new THREE.Points(geometry, pointsMaterial);
 
             // Rotate models to correct orientation
-            mesh.rotation.x = Math.PI;  // Rotate 180 degrees around X-axis
-            points.rotation.x = Math.PI;
+            mesh.rotation.z = Math.PI;
 
             // Add models to scene
             scene.add(mesh);
-            scene.add(points);
-
-            // Position points slightly in front of mesh for visibility
-            points.position.z = 0.001;
 
             // Center the geometry
             geometry.center();
@@ -106,11 +89,6 @@ loader.load('./Angel Guimera cropped.ply', function(geometry) {
 
     animate();
 
-// Render loop
-// renderer.setAnimationLoop(() => {
-// 	controls.update();
-// 	renderer.render(scene, camera);
-// });
 </script>
 </body>
 </html>
